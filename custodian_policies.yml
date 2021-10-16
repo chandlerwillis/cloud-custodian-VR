@@ -1,0 +1,48 @@
+
+policies:
+
+#auto-tag instances
+
+- name: ec2-auto-tag-user
+  resource: ec2
+  mode:
+    type: cloudtrail
+    role: arn:aws:iam::{account_id}:role/custodian-auto-tagger
+    # will automatically inherit the account_id properly
+    events:
+      - RunInstances
+  filters:
+    - tag:CreatorName: absent
+    - tag:maid_offhours: absent
+    - tag:nukeTag: absent
+  actions:
+    - type: auto-tag-user
+      tag: CreatorName
+      principal_id_tag: CreatorId
+    - type: tag
+      key: maid_offhours
+      value: "off=[(M-F,21),(U,18)];on=[(M-F,6),(U,10)];tz=est" #can be changed around to just contain a yes or no tag
+    - type: tag
+      key: nukeTag
+      value: "yes"
+
+#instance offhours policy. Can be interchanged between stop or terminate the instance
+
+policies:
+  - name: ec2-stop-instances-offhours
+    resource: ec2
+    mode:
+      type: periodic
+      role: arn:aws:iam::425788440509:role/CloudCustodian
+      schedule: "rate(2 minutes)"
+    filters:
+      - "tag:sleepTag": "on"
+      - type: offhour
+        tag: offhours
+        default_tz: est           
+        offhour: 13
+    actions:
+      - stop
+
+
+
