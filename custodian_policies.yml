@@ -33,7 +33,7 @@ policies:
     resource: ec2
     mode:
       type: periodic
-      role: arn:aws:iam::425788440509:role/CloudCustodian
+      role: arn:aws:iam::#######:role/CloudCustodian
       schedule: "rate(2 minutes)"
     filters:
       - "tag:sleepTag": "on"
