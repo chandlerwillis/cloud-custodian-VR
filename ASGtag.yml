@@ -1,0 +1,29 @@
+
+policies:
+
+#auto-tag instances
+
+- name: asg-auto-tag-user
+  resource: asg
+  mode:
+    type: cloudtrail
+    role: arn:aws:iam::{account_id}:role/custodian-auto-tagger
+    # will automatically inherit the account_id properly
+    events:
+      - RunInstances
+  filters:
+    - tag:CreatorName: absent
+    - tag:maid_offhours: absent
+    - tag:nukeTag: absent
+  actions:
+    - type: auto-tag-user
+      tag: CreatorName
+      principal_id_tag: CreatorId
+    - type: tag
+      key: maid_offhours
+      value: "offhours" #can be changed around to just contain a yes or no tag
+    - type: tag
+      key: nukeTag
+      value: "yes"
+
+#instance offhours policy. Can be interchanged between stop or terminate the instance
